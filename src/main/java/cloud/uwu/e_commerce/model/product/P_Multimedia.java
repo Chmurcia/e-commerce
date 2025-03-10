@@ -1,5 +1,6 @@
-package cloud.uwu.e_commerce.model.user;
+package cloud.uwu.e_commerce.model.product;
 
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -7,22 +8,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "address")
-public class Address {
+@Document(collection = "p_multimedia")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class P_Multimedia {
     @Id
     private String id;
 
-    private String userId;
+    private String multimediaUrl;
 
-    private String country;
-
-    private String state;
-
-    private String city;
-
-    private String street;
-
-    private String zipCode;
+    private String productId;
 
     @CreatedDate
     private LocalDateTime createdDate;

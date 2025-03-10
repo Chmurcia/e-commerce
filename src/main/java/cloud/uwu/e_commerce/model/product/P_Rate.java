@@ -8,17 +8,23 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document(collection = "multimedia")
+@Document(collection = "p_rate")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Multimedia {
+public class P_Rate {
     @Id
     private String id;
 
-    private String multimediaUrl;
+    private Double rate;
+
+    private String title;
+
+    private String comment;
+
+    private String userId;
 
     private String productId;
 
@@ -26,5 +32,5 @@ public class Multimedia {
     private LocalDateTime createdDate;
 
     @LastModifiedDate
-    private LocalDateTime updatedDate;
+    private LocalDateTime UpdatedDate;
 }
