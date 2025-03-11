@@ -28,6 +28,8 @@ public class User {
 
     private String h_password;
 
+    private String role;
+
     @CreatedDate
     private LocalDateTime createdDate;
 
