@@ -1,5 +1,7 @@
 package cloud.uwu.e_commerce.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
