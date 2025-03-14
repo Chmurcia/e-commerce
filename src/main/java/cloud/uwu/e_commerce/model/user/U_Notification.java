@@ -5,6 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -22,8 +23,10 @@ public class U_Notification {
 
     private String description;
 
+    @Field("related_to")
     private String relatedTo;
 
+    @Field("related_id")
     private String relatedId;
 
     @CreatedDate

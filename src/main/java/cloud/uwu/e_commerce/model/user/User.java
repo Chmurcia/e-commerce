@@ -5,6 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
@@ -18,15 +19,19 @@ public class User {
     @Id
     private String id;
 
+    @Field("first_name")
     private String firstName;
 
+    @Field("last_name")
     private String lastName;
 
+    @Field("nick_name")
     private String nickName;
 
     private String email;
 
-    private String h_password;
+    @Field("hashed_password")
+    private String hashedPassword;
 
     private String role;
 
