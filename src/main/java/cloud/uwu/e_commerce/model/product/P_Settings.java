@@ -1,5 +1,6 @@
 package cloud.uwu.e_commerce.model.product;
 
+import cloud.uwu.e_commerce.enums.Country;
 import cloud.uwu.e_commerce.enums.Region;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -29,6 +30,9 @@ public class P_Settings {
 
     @Field("available_regions")
     private List<Region> availableRegions;
+
+    @Field("available_countries")
+    private List<Country> availableCountries;
 
     @CreatedDate
     private LocalDateTime createdDate;
