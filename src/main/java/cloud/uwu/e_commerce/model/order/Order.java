@@ -1,5 +1,6 @@
 package cloud.uwu.e_commerce.model.order;
 
+import cloud.uwu.e_commerce.enums.OrderStatus;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -30,6 +31,9 @@ public class Order {
 
     @Field("total_price")
     private BigDecimal totalPrice;
+
+    @Field("order_status")
+    private OrderStatus orderStatus;
 
     @CreatedDate
     private LocalDateTime createdDate;
