@@ -5,6 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,8 +20,10 @@ public class P_Sales_Report {
     @Id
     private String id;
 
+    @Field("product_id")
     private String productId;
 
+    @Field("units_sold")
     private Integer unitsSold;
 
     private BigDecimal revenue;
