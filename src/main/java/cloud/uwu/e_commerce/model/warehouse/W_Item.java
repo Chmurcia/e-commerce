@@ -4,26 +4,25 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+@Document(collection = "w_item")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class W_Inventory {
+public class W_Item {
     @Id
     private String id;
 
-    @Field("warehouse_id")
-    private String warehouseId;
+    @Field("product_id")
+    private String productId;
 
-    @DBRef
-    private List<W_Item> items;
+    private Integer amount;
 
     @CreatedDate
     private LocalDateTime createdDate;
