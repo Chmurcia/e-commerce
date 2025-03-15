@@ -1,7 +1,7 @@
 package cloud.uwu.e_commerce.bootstrap;
 
 import cloud.uwu.e_commerce.model.product.Product;
-import cloud.uwu.e_commerce.repositories.ProductRepository;
+import cloud.uwu.e_commerce.repositories.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
