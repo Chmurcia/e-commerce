@@ -1,4 +1,4 @@
-package cloud.uwu.e_commerce.repositories;
+package cloud.uwu.e_commerce.repositories.user;
 
 import cloud.uwu.e_commerce.model.user.User;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
