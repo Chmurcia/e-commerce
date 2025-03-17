@@ -25,6 +25,8 @@ public class O_Item {
     @Field("product_id")
     private String productId;
 
+    private Integer amount;
+
     @CreatedDate
     private LocalDateTime createdDate;
 
