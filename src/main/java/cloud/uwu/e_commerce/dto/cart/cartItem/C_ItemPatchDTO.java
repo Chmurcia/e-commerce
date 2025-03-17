@@ -1,7 +1,6 @@
 package cloud.uwu.e_commerce.dto.cart.cartItem;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter

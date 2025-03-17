@@ -1,5 +1,8 @@
 package cloud.uwu.e_commerce.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum OrderStatus {
     PENDING("Pending"),
     PROCESSING("Processing"),
@@ -19,5 +22,20 @@ public enum OrderStatus {
 
     OrderStatus(String statusName) {
         this.statusName = statusName;
+    }
+
+    @JsonValue
+    public String getName() {
+        return statusName;
+    }
+
+    @JsonCreator
+    public static OrderStatus fromName(String statusName) {
+        for (OrderStatus orderStatus : values()) {
+            if (orderStatus.statusName.equalsIgnoreCase(statusName)) {
+                return orderStatus;
+            }
+        }
+        throw new IllegalArgumentException("Unknown order status: " + statusName);
     }
 }

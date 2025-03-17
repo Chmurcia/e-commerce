@@ -42,4 +42,19 @@ public enum Color {
     Color(String colorName) {
         this.colorName = colorName;
     }
+
+    @JsonValue
+    public String getName() {
+        return colorName;
+    }
+
+    @JsonCreator
+    public static Color fromName(String colorName) {
+        for (Color color : values()) {
+            if (color.colorName.equalsIgnoreCase(colorName)) {
+                return color;
+            }
+        }
+        throw new IllegalArgumentException("Unknown color: " + colorName);
+    }
 }

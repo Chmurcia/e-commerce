@@ -1,5 +1,7 @@
 package cloud.uwu.e_commerce.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 @Getter
@@ -163,6 +165,21 @@ public enum Currency {
 
     Currency(String currencyName) {
         this.currencyName = currencyName;
+    }
+
+    @JsonValue
+    public String getName() {
+        return currencyName;
+    }
+
+    @JsonCreator
+    public static Currency fromName(String currencyName) {
+        for (Currency currency : values()) {
+            if (currency.currencyName.equalsIgnoreCase(currencyName)) {
+                return currency;
+            }
+        }
+        throw new IllegalArgumentException("Unknown currency: " + currencyName);
     }
 
 }
