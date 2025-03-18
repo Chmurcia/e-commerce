@@ -35,5 +35,5 @@ public class P_Rate {
     private LocalDateTime createdDate;
 
     @LastModifiedDate
-    private LocalDateTime UpdatedDate;
+    private LocalDateTime updatedDate;
 }

@@ -26,11 +26,13 @@ public class P_Sales_Report {
     @Field("units_sold")
     private Integer unitsSold;
 
-    private BigDecimal revenue;
+    @Field("total_refunds")
+    private BigDecimal totalRevenue;
 
     private Integer returns;
 
-    private BigDecimal refunds;
+    @Field("total_refunds")
+    private BigDecimal totalRefunds;
 
     @CreatedDate
     private LocalDateTime createdDate;

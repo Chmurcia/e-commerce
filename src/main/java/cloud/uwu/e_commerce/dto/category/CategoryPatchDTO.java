@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CategoryPatchDTO {
-    @Size(max = 100, message = "length of 'name' field must be between 0 and 100 characters")
+    @Size(min = 1, max = 100, message = "length of 'name' field must be between 1 and 100 characters")
     private String name;
 
     private Color color;
