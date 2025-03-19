@@ -1,5 +1,6 @@
 package cloud.uwu.e_commerce.model.user;
 
+import cloud.uwu.e_commerce.enums.Role;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -33,7 +34,7 @@ public class User {
     @Field("hashed_password")
     private String hashedPassword;
 
-    private String role;
+    private Role role;
 
     @CreatedDate
     private LocalDateTime createdDate;
