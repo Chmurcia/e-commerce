@@ -19,6 +19,9 @@ public class W_Item {
     @Id
     private String id;
 
+    @Field("warehouse_id")
+    private String warehouseId;
+
     @Field("product_id")
     private String productId;
 

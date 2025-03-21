@@ -7,7 +7,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Document(collection = "wishlist")
@@ -23,7 +22,8 @@ public class Wishlist {
     @Field("user_id")
     private String userId;
 
-    private Integer amount;
+    @Field("total_amount")
+    private Integer totalAmount;
 
     @CreatedDate
     private LocalDateTime createdDate;

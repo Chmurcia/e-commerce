@@ -1,5 +1,6 @@
 package cloud.uwu.e_commerce.model.warehouse;
 
+import cloud.uwu.e_commerce.enums.Country;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -22,7 +23,7 @@ public class W_Address {
     @Field("warehouse_id")
     private String warehouseId;
 
-    private String country;
+    private Country country;
 
     private String state;
 
