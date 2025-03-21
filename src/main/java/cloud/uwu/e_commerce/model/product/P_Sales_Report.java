@@ -26,7 +26,7 @@ public class P_Sales_Report {
     @Field("units_sold")
     private Integer unitsSold;
 
-    @Field("total_refunds")
+    @Field("total_revenue")
     private BigDecimal totalRevenue;
 
     private Integer returns;
