@@ -1,4 +1,4 @@
-package cloud.uwu.e_commerce.dto.user.userReturn;
+package cloud.uwu.e_commerce.dto.user.userRefund;
 
 import cloud.uwu.e_commerce.enums.Currency;
 import com.fasterxml.jackson.annotation.JsonProperty;

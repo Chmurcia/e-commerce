@@ -1,4 +1,4 @@
-package cloud.uwu.e_commerce.dto.user.userRefund;
+package cloud.uwu.e_commerce.dto.user.userReturn;
 
 import cloud.uwu.e_commerce.enums.ReturnStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
