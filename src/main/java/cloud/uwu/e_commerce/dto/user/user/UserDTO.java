@@ -33,11 +33,6 @@ public class UserDTO {
     @Email(message = "'email' field has invalid format")
     private String email;
 
-    @NotBlank(message = "'password' field is null")
-    @Size(min = 1, message = "'password' field must contain at least 1 character")
-    @JsonProperty("password")
-    private String password;
-
     @NotNull(message = "'role' field is null")
     private Role role;
 }

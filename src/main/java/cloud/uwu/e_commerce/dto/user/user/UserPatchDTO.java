@@ -27,9 +27,5 @@ public class UserPatchDTO {
     @Email(message = "'email' field has invalid format")
     private String email;
 
-    @Size(min = 1, message = "'password' field must contain at least 1 character")
-    @JsonProperty("password")
-    private String password;
-
     private Role role;
 }
