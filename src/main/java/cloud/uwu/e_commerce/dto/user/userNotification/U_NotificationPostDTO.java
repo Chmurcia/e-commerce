@@ -1,5 +1,6 @@
 package cloud.uwu.e_commerce.dto.user.userNotification;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -11,6 +12,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @Builder
 public class U_NotificationPostDTO {
+    @NotNull(message = "'user_id' field is null")
+    @JsonProperty("user_id")
+    private String userId;
+
     @NotBlank(message = "'title' field is null")
     @Size(min = 1, max = 50, message = "length of 'title' field must be between 1 and 50")
     private String title;

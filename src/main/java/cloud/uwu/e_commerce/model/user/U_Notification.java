@@ -19,6 +19,9 @@ public class U_Notification {
     @Id
     private String id;
 
+    @Field("user_id")
+    private String userId;
+
     private String title;
 
     private String description;

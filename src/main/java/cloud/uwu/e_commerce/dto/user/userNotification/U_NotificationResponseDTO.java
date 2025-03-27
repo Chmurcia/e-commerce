@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 public class U_NotificationResponseDTO {
     private String id;
 
+    @JsonProperty("user_id")
+    private String userId;
+
     private String title;
 
     private String description;
