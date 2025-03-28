@@ -21,6 +21,7 @@ public class PasswordService {
         }
 
         return repository.findById(id)
+                .switchIfEmpty(Mono.error(new NotFoundException("User with id " + id + " not found")))
                 .flatMap(existingUser -> {
                     if (!passwordEncoder.matches(oldPassword, existingUser.getHashedPassword())) {
                         return Mono.error(new InvalidPasswordException("Old password is incorrect"));
@@ -32,7 +33,6 @@ public class PasswordService {
 
                     existingUser.setHashedPassword(passwordEncoder.encode(newPassword));
                     return repository.save(existingUser).then();
-                })
-                .switchIfEmpty(Mono.error(new NotFoundException("User with id " + id + " not found")));
+                });
     }
 }

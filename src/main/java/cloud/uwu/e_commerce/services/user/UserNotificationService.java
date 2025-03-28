@@ -4,14 +4,16 @@ import cloud.uwu.e_commerce.dto.user.userNotification.U_NotificationPostDTO;
 import cloud.uwu.e_commerce.dto.user.userNotification.U_NotificationResponseDTO;
 import cloud.uwu.e_commerce.exceptions.NotFoundException;
 import cloud.uwu.e_commerce.mappers.user.UserNotificationMapper;
+import cloud.uwu.e_commerce.model.user.U_Notification;
 import cloud.uwu.e_commerce.repositories.user.UserNotificationRepository;
 import cloud.uwu.e_commerce.repositories.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserNotificationService {
@@ -19,21 +21,28 @@ public class UserNotificationService {
     private final UserNotificationRepository userNotificationRepository;
     private final UserNotificationMapper mapper;
 
-    public Flux<U_NotificationResponseDTO> getUserNotificationsByUserId(String userId) {
-        if (!StringUtils.hasText(userId)) {
-            return Flux.error(new IllegalArgumentException("userId cannot be empty or null"));
-        }
+    private Mono<? extends U_Notification> returnMonoErrorAndLogWarn(String id) {
+        log.warn("UserNotification with id {} not found", id);
+        return Mono.error(new NotFoundException("UserNotification with id " + id + " not found"));
+    }
 
+    public Flux<U_NotificationResponseDTO> getUserNotificationsByUserId(String userId) {
         return userRepository.findById(userId)
                 .switchIfEmpty(Mono.error(new NotFoundException("User with id " + userId + " not found")))
-                .thenMany(userNotificationRepository.findByUserId(userId)
-                        .map(mapper::userNotificationToUserNotificationResponseDTO));
+                .flatMapMany(user -> userNotificationRepository.findByUserId(user.getId())
+                        .mapNotNull(mapper::userNotificationToUserNotificationResponseDTO))
+                .switchIfEmpty(Flux.defer(() -> {
+                    log.warn("No UserNotifications found for user with id {}", userId);
+
+                    return Flux.empty();
+                }));
     }
 
     public Mono<U_NotificationResponseDTO> getUserNotificationById(String id) {
         return userNotificationRepository.findById(id)
-                .map(mapper::userNotificationToUserNotificationResponseDTO)
-                .switchIfEmpty(Mono.error(new NotFoundException("UserNotification with id " + id + " not found")));
+                .switchIfEmpty(returnMonoErrorAndLogWarn(id))
+                .map(mapper::userNotificationToUserNotificationResponseDTO);
+
     }
 
     public Mono<U_NotificationResponseDTO> createUserNotification(U_NotificationPostDTO uNotification) {
@@ -45,6 +54,9 @@ public class UserNotificationService {
     public Mono<Void> deleteUserNotification(String id) {
         return userNotificationRepository
                 .deleteById(id)
-                .switchIfEmpty(Mono.error(new NotFoundException("UserNotification with id " + id + " not found")));
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("UserNotification with id {} not found", id);
+                    return Mono.error(new NotFoundException("UserNotification with id " + id + " not found"));
+                }));
     }
 }

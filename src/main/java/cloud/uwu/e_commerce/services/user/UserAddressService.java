@@ -6,9 +6,11 @@ import cloud.uwu.e_commerce.dto.user.userAddress.U_AddressPutDTO;
 import cloud.uwu.e_commerce.dto.user.userAddress.U_AddressResponseDTO;
 import cloud.uwu.e_commerce.exceptions.NotFoundException;
 import cloud.uwu.e_commerce.mappers.user.UserAddressMapper;
+import cloud.uwu.e_commerce.model.user.U_Address;
 import cloud.uwu.e_commerce.repositories.user.UserAddressRepository;
 import cloud.uwu.e_commerce.repositories.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -16,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserAddressService {
@@ -23,21 +26,27 @@ public class UserAddressService {
     private final UserAddressRepository userAddressRepository;
     private final UserAddressMapper mapper;
 
-    Flux<U_AddressResponseDTO> getUserAddressesByUserId(String userId) {
-        if (!StringUtils.hasText(userId)) {
-            return Flux.error(new IllegalArgumentException("userId cannot be empty or null"));
-        }
+    private Mono<? extends U_Address> returnMonoErrorAndLogWarn(String id) {
+        log.warn("UserAddress with id {} not found", id);
+        return Mono.error(new NotFoundException("UserAddress with id " + id + " not found"));
+    }
 
+    Flux<U_AddressResponseDTO> getUserAddressesByUserId(String userId) {
         return userRepository.findById(userId)
                 .switchIfEmpty(Mono.error(new NotFoundException("User with id " + userId + " not found")))
-                .thenMany(userAddressRepository.findByUserId(userId)
-                        .map(mapper::userAddressToUserAddressResponseDTO));
+                .flatMapMany(user -> userAddressRepository.findByUserId(user.getId())
+                        .mapNotNull(mapper::userAddressToUserAddressResponseDTO))
+                .switchIfEmpty(Flux.defer(() -> {
+                    log.warn("No UserAddresses found for user with id {}", userId);
+
+                    return Flux.empty();
+                }));
     }
 
     Mono<U_AddressResponseDTO> getUserAddressById(String id) {
         return userAddressRepository.findById(id)
-                .map(mapper::userAddressToUserAddressResponseDTO)
-                .switchIfEmpty(Mono.error(new NotFoundException("UserAddress with id " + id + " not found")));
+                .switchIfEmpty(returnMonoErrorAndLogWarn(id))
+                .map(mapper::userAddressToUserAddressResponseDTO);
     }
 
     Mono<U_AddressResponseDTO> createUserAddress(U_AddressPostDTO uAddress) {
@@ -48,6 +57,7 @@ public class UserAddressService {
 
     Mono<U_AddressResponseDTO> updateUserAddress(String id, U_AddressPutDTO uAddress) {
         return userAddressRepository.findById(id)
+                .switchIfEmpty(returnMonoErrorAndLogWarn(id))
                 .flatMap(existingAddress -> {
 
                     existingAddress.setCountry(uAddress.getCountry());
@@ -58,12 +68,12 @@ public class UserAddressService {
 
                     return userAddressRepository.save(existingAddress);
                 })
-                .map(mapper::userAddressToUserAddressResponseDTO)
-                .switchIfEmpty(Mono.error(new NotFoundException("UserAddress with id " + id + " not found")));
+                .map(mapper::userAddressToUserAddressResponseDTO);
     }
 
     Mono<U_AddressResponseDTO> patchUserAddress(String id, U_AddressPatchDTO uAddress) {
         return userAddressRepository.findById(id)
+                .switchIfEmpty(returnMonoErrorAndLogWarn(id))
                 .flatMap(existingAddress -> {
 
                     Optional.ofNullable(uAddress.getCountry())
@@ -83,14 +93,16 @@ public class UserAddressService {
 
                     return userAddressRepository.save(existingAddress);
                 })
-                .map(mapper::userAddressToUserAddressResponseDTO)
-                .switchIfEmpty(Mono.error(new NotFoundException("UserAddress with id " + id + " not found")));
+                .map(mapper::userAddressToUserAddressResponseDTO);
     }
 
     Mono<Void> deleteUserAddress(String id) {
         return userAddressRepository
                 .deleteById(id)
-                .switchIfEmpty(Mono.error(new NotFoundException("UserAddress with id " + id + " not found")));
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("UserAddress with id {} not found", id);
+                    return Mono.error(new NotFoundException("UserAddress with id " + id + " not found"));
+                }));
     }
 
 }

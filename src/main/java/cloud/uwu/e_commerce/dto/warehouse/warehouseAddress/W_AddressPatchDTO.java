@@ -1,6 +1,8 @@
 package cloud.uwu.e_commerce.dto.warehouse.warehouseAddress;
 
+import cloud.uwu.e_commerce.enums.Country;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -10,6 +12,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class W_AddressPatchDTO {
+    private Country country;
+
     @Size(min = 1, max = 100, message = "length of 'state' field must be between 1 and 100 characters")
     private String state;
 

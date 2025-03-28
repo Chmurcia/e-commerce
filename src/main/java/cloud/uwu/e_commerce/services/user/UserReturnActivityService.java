@@ -4,14 +4,17 @@ import cloud.uwu.e_commerce.dto.user.userReturnActivity.U_Return_ActivityPostDTO
 import cloud.uwu.e_commerce.dto.user.userReturnActivity.U_Return_ActivityResponseDTO;
 import cloud.uwu.e_commerce.exceptions.NotFoundException;
 import cloud.uwu.e_commerce.mappers.user.UserReturnActivityMapper;
+import cloud.uwu.e_commerce.model.user.U_Return_Activity;
 import cloud.uwu.e_commerce.repositories.user.UserRepository;
 import cloud.uwu.e_commerce.repositories.user.UserReturnActivityRepository;
 import cloud.uwu.e_commerce.repositories.user.UserReturnRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserReturnActivityService {
@@ -20,35 +23,51 @@ public class UserReturnActivityService {
     private final UserReturnActivityRepository userReturnActivityRepository;
     private final UserReturnActivityMapper mapper;
 
-    Flux<U_Return_ActivityResponseDTO> getUserReturnActivitiesByUserId(String userId) {
+    private Mono<? extends U_Return_Activity> returnMonoErrorAndLogWarn(String id) {
+        log.warn("WarehouseAddress with id {} not found", id);
+        return Mono.error(new NotFoundException("WarehouseAddress with id " + id + " not found"));
+    }
+
+    public Flux<U_Return_ActivityResponseDTO> getUserReturnActivitiesByUserId(String userId) {
         return userRepository.findById(userId)
                 .switchIfEmpty(Mono.error(new NotFoundException("User with id " + userId + " not found")))
-                .thenMany(userReturnActivityRepository.findByUserId(userId)
-                        .map(mapper::userReturnActivityToUserReturnActivityResponseDTO));
+                .flatMapMany(user -> userReturnActivityRepository.findByUserId(user.getId())
+                        .mapNotNull(mapper::userReturnActivityToUserReturnActivityResponseDTO))
+                .switchIfEmpty(Flux.defer(() -> {
+                    log.warn("No UserReturnActivities found for user with id {}", userId);
+                    return Flux.empty();
+                }));
     }
 
-    Flux<U_Return_ActivityResponseDTO> getUserReturnActivitiesByReturnId(String returnId) {
+    public Flux<U_Return_ActivityResponseDTO> getUserReturnActivitiesByReturnId(String returnId) {
         return userReturnRepository.findById(returnId)
                 .switchIfEmpty(Mono.error(new NotFoundException("UserReturn with id " + returnId + " not found")))
-                .thenMany(userReturnActivityRepository.findByReturnId(returnId)
-                        .map(mapper::userReturnActivityToUserReturnActivityResponseDTO));
+                .flatMapMany(userReturn -> userReturnActivityRepository.findByReturnId(userReturn.getId())
+                        .map(mapper::userReturnActivityToUserReturnActivityResponseDTO))
+                .switchIfEmpty(Flux.defer(() -> {
+                    log.warn("No UserReturnActivities found for UserReturn with id {}", returnId);
+                    return Flux.empty();
+                }));
     }
 
-    Mono<U_Return_ActivityResponseDTO> getUserReturnActivityById(String id) {
+    public Mono<U_Return_ActivityResponseDTO> getUserReturnActivityById(String id) {
         return userReturnActivityRepository.findById(id)
-                .map(mapper::userReturnActivityToUserReturnActivityResponseDTO)
-                .switchIfEmpty(Mono.error(new NotFoundException("UserReturnActivity with id " + id + " not found")));
+                .switchIfEmpty(returnMonoErrorAndLogWarn(id))
+                .map(mapper::userReturnActivityToUserReturnActivityResponseDTO);
     }
 
-    Mono<U_Return_ActivityResponseDTO> createUserReturnActivity(U_Return_ActivityPostDTO uReturnActivity) {
+    public Mono<U_Return_ActivityResponseDTO> createUserReturnActivity(U_Return_ActivityPostDTO uReturnActivity) {
         return userReturnActivityRepository
                 .save(mapper.userReturnActivityPostDTOToUserReturnActivity(uReturnActivity))
                 .map(mapper::userReturnActivityToUserReturnActivityResponseDTO);
     }
 
-    Mono<Void> deleteUserReturnActivity(String id) {
+    public Mono<Void> deleteUserReturnActivity(String id) {
         return userReturnActivityRepository
                 .deleteById(id)
-                .switchIfEmpty(Mono.error(new NotFoundException("UserReturnActivity with id " + id + " not found")));
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("WarehouseAddress with id {} not found", id);
+                    return Mono.error(new NotFoundException("WarehouseAddress with id " + id + " not found"));
+                }));
     }
 }

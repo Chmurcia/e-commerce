@@ -5,23 +5,32 @@ import cloud.uwu.e_commerce.dto.user.user.UserPatchDTO;
 import cloud.uwu.e_commerce.dto.user.user.UserResponseDTO;
 import cloud.uwu.e_commerce.exceptions.NotFoundException;
 import cloud.uwu.e_commerce.mappers.user.UserMapper;
+import cloud.uwu.e_commerce.model.user.User;
 import cloud.uwu.e_commerce.repositories.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
 
+    private Mono<? extends User> returnMonoErrorAndLogWarn(String id) {
+        log.warn("User with id {} not found", id);
+        return Mono.error(new NotFoundException("User with id " + id + " not found"));
+    }
+
     public Mono<UserResponseDTO> getUserById(String id) {
         return repository.findById(id)
-                .map(mapper::userToUserResponseDTO)
-                .switchIfEmpty(Mono.error(new NotFoundException("User with id " + id + " not found")));
+                .switchIfEmpty(returnMonoErrorAndLogWarn(id))
+                .map(mapper::userToUserResponseDTO);
+
     }
 
     public Mono<UserResponseDTO> createUser(UserDTO user) {
@@ -32,6 +41,7 @@ public class UserService {
 
     public Mono<UserResponseDTO> updateUser(String id, UserDTO user) {
         return repository.findById(id)
+                .switchIfEmpty(returnMonoErrorAndLogWarn(id))
                 .flatMap(existingUser -> {
 
                     existingUser.setFirstName(user.getFirstName());
@@ -42,12 +52,12 @@ public class UserService {
 
                     return repository.save(existingUser);
                 })
-                .map(mapper::userToUserResponseDTO)
-                .switchIfEmpty(Mono.error(new NotFoundException("User with id " + id + " not found")));
+                .map(mapper::userToUserResponseDTO);
     }
 
     public Mono<UserResponseDTO> patchUser(String id, UserPatchDTO user) {
         return repository.findById(id)
+                .switchIfEmpty(returnMonoErrorAndLogWarn(id))
                 .flatMap(existingUser -> {
 
                     Optional.ofNullable(user.getFirstName())
@@ -67,12 +77,14 @@ public class UserService {
 
                     return repository.save(existingUser);
                 })
-                .map(mapper::userToUserResponseDTO)
-                .switchIfEmpty(Mono.error(new NotFoundException("User with id " + id + " not found")));
+                .map(mapper::userToUserResponseDTO);
     }
 
     public Mono<Void> deleteUser(String id) {
         return repository.deleteById(id)
-                .switchIfEmpty(Mono.error(new NotFoundException("User with id " + id + " not found")));
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("User with id {} not found", id);
+                    return Mono.error(new NotFoundException("User with id " + id + " not found"));
+                }));
     }
 }

@@ -13,11 +13,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class W_AddressPutDTO {
-    @NotNull(message = "'warehouse_id' field is null")
-    @JsonProperty("warehouse_id")
-    private String warehouseId;
-
-    @NotBlank(message = "'country' field is null")
+    @NotNull(message = "'country' field is null")
     private Country country;
 
     @NotBlank(message = "'state' field is null")
