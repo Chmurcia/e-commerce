@@ -31,6 +31,9 @@ public class User {
 
     private String email;
 
+    @Field("phone_number")
+    private String phoneNumber;
+
     @Field("hashed_password")
     private String hashedPassword;
 
