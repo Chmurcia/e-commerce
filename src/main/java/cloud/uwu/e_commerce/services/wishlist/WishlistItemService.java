@@ -55,7 +55,9 @@ public class WishlistItemService {
     public Mono<Void> deleteWishlistItem(String id) {
         return wishlistItemRepository
                 .deleteById(id)
-                .switchIfEmpty(Mono.error(new NotFoundException("WishlistItem with id " + id + " not found")))
-                    .doOnError(e -> log.warn("WishlistItem with id {} not found", id));
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("WishlistItem with id {} not found", id);
+                    return Mono.error(new NotFoundException("WishlistItem with id " + id + " not found"));
+                }));
     }
 }
