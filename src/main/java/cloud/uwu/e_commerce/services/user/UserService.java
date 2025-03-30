@@ -4,6 +4,7 @@ import cloud.uwu.e_commerce.dto.user.user.UserDTO;
 import cloud.uwu.e_commerce.dto.user.user.UserPatchDTO;
 import cloud.uwu.e_commerce.dto.user.user.UserResponseDTO;
 import cloud.uwu.e_commerce.exceptions.NotFoundException;
+import cloud.uwu.e_commerce.exceptions.AlreadyExistsException;
 import cloud.uwu.e_commerce.mappers.user.UserMapper;
 import cloud.uwu.e_commerce.model.user.User;
 import cloud.uwu.e_commerce.repositories.user.UserRepository;
@@ -34,24 +35,35 @@ public class UserService {
     }
 
     public Mono<UserResponseDTO> createUser(UserDTO user) {
-        return repository
-                .save(mapper.userPostDTOToUser(user))
-                .map(mapper::userToUserResponseDTO);
+        return repository.findByEmail(user.getEmail())
+                .flatMap(existingUser -> Mono.error(
+                        new AlreadyExistsException("User with email "
+                                + user.getEmail()
+                                + " already exists"))
+                ).then(
+                        repository.save(mapper.userPostDTOToUser(user))
+                                .map(mapper::userToUserResponseDTO)
+                );
     }
 
     public Mono<UserResponseDTO> updateUser(String id, UserDTO user) {
         return repository.findById(id)
                 .switchIfEmpty(returnMonoErrorAndLogWarn(id))
-                .flatMap(existingUser -> {
+                .flatMap(existingUser -> repository.findByEmail(user.getEmail())
+                        .filter(existingUserWithEmail -> !existingUserWithEmail.getId().equals(id))
+                        .flatMap(existingUserWithEmail -> Mono.error(
+                                new AlreadyExistsException("User with email "
+                                        + user.getEmail()
+                                        + " not found")))
+                        .then(Mono.defer(() -> {
+                            existingUser.setFirstName(user.getFirstName());
+                            existingUser.setLastName(user.getLastName());
+                            existingUser.setNickName(user.getNickName());
+                            existingUser.setRole(user.getRole());
+                            existingUser.setEmail(user.getEmail());
 
-                    existingUser.setFirstName(user.getFirstName());
-                    existingUser.setLastName(user.getLastName());
-                    existingUser.setNickName(user.getNickName());
-                    existingUser.setEmail(user.getEmail());
-                    existingUser.setRole(user.getRole());
-
-                    return repository.save(existingUser);
-                })
+                            return repository.save(existingUser);
+                        })))
                 .map(mapper::userToUserResponseDTO);
     }
 
@@ -60,22 +72,34 @@ public class UserService {
                 .switchIfEmpty(returnMonoErrorAndLogWarn(id))
                 .flatMap(existingUser -> {
 
-                    Optional.ofNullable(user.getFirstName())
-                            .ifPresent(existingUser::setFirstName);
+                    Mono<User> emailCheck = (user.getEmail() != null && !user.getEmail().equals(existingUser.getEmail()))
+                            ? repository.findByEmail(user.getEmail())
+                            .filter(existingUserWithEmail -> !existingUserWithEmail.getId().equals(id))
+                            .flatMap(existingUserWithEmail -> Mono.error(
+                                    new AlreadyExistsException("User with email "
+                                            + existingUserWithEmail.getEmail()
+                                            + " already exists")))
+                            : Mono.empty();
 
-                    Optional.ofNullable(user.getLastName())
-                            .ifPresent(existingUser::setLastName);
+                    return Mono.when(emailCheck)
+                            .then(Mono.defer(() -> {
+                                Optional.ofNullable(user.getFirstName())
+                                        .ifPresent(existingUser::setFirstName);
 
-                    Optional.ofNullable(user.getNickName())
-                            .ifPresent(existingUser::setNickName);
+                                Optional.ofNullable(user.getLastName())
+                                        .ifPresent(existingUser::setLastName);
 
-                    Optional.ofNullable(user.getEmail())
-                            .ifPresent(existingUser::setEmail);
+                                Optional.ofNullable(user.getNickName())
+                                        .ifPresent(existingUser::setNickName);
 
-                    Optional.ofNullable(user.getRole())
-                            .ifPresent(existingUser::setRole);
+                                Optional.ofNullable(user.getEmail())
+                                        .ifPresent(existingUser::setEmail);
 
-                    return repository.save(existingUser);
+                                Optional.ofNullable(user.getRole())
+                                        .ifPresent(existingUser::setRole);
+
+                                return repository.save(existingUser);
+                            }));
                 })
                 .map(mapper::userToUserResponseDTO);
     }
