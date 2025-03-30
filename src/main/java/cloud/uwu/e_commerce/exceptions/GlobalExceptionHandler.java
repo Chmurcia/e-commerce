@@ -21,4 +21,10 @@ public class GlobalExceptionHandler {
     public Mono<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException ex) {
         return Mono.just(new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage()));
     }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Mono<ErrorResponse> handleAlreadyExistsException(AlreadyExistsException ex) {
+        return Mono.just(new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage()));
+    }
 }
