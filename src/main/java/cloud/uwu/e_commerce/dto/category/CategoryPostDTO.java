@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoryDTO {
+public class CategoryPostDTO {
     @NotBlank(message = "'name' field is null")
     @Size(min = 1, max = 100, message = "length of 'name' field must be between 1 and 100 characters")
     private String name;
