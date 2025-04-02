@@ -4,7 +4,7 @@ import cloud.uwu.e_commerce.exceptions.InvalidPasswordException;
 import cloud.uwu.e_commerce.exceptions.NotFoundException;
 import cloud.uwu.e_commerce.repositories.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class PasswordService {
     private final UserRepository repository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public Mono<Void> changePassword(String id, String oldPassword, String newPassword) {
 
